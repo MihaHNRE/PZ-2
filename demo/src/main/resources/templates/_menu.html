@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Properties List</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Properties List</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Address</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Перебір списку об'єктів -->
+            <tr th:each="property : ${allProperties}">
+                <td th:text="${property.name}"></td>
+                <td th:text="${property.type}"></td>
+                <td th:text="${property.address}"></td>
+                <td th:text="${property.price}"></td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="/addProperty">Add New Property</a> |
+    <a href="/deletePropertiesByName">Delete Property by Name</a> |
+    <a href="/propertiesByType">Search Properties by Type</a>
+</body>
+</html>

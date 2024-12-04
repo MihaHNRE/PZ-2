@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search Properties by Type</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <h1>Search Properties by Type</h1>
+    <form action="/propertiesByType" method="post">
+        <label for="type">Type:</label>
+        <input type="text" id="type" name="type" required><br>
+        
+        <button type="submit">Search</button>
+    </form>
+    <a href="/properties">Back to Properties List</a>
+</body>
+</html>
+
+package ua.nure.st.kpp.example.demo.dao;
+
+import ua.nure.st.kpp.example.demo.entity.Property;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MySQLDAO implements IDAO {
+
+    
+    private static final String URL = "jdbc:mysql://localhost:3306/your_database";
+    private static final String USER = "actual_user";  // Используйте реальное имя пользователя MySQL
+    private static final String PASSWORD = "actual_password";  // Используйте реальный пароль
+
+    private Connection connection;
+
+    public MySQLDAO() {
+        try {
+            connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Property> getAllProperties() {
+        List<Property> properties = new ArrayList<>();
+        String query = "SELECT * FROM properties"; // Предположим, что у вас таблица 'properties'
+
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                String name = rs.getString("name");
+                String type = rs.getString("type");
+                String address = rs.getString("address");
+                double price = rs.getDouble("price");
+
+                Property property = new Property(name, type, address, price);
+                properties.add(property);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return properties;
+    }
+
+    @Override
+    public void addProperty(Property property) {
+        String query = "INSERT INTO properties (name, type, address, price) VALUES (?, ?, ?, ?)";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, property.getName());
+            pstmt.setString(2, property.getType());
+            pstmt.setString(3, property.getAddress());
+            pstmt.setDouble(4, property.getPrice());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void deletePropertiesByName(String name) {
+        String query = "DELETE FROM properties WHERE name = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, name);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<Property> getPropertiesByType(String type) {
+        List<Property> properties = new ArrayList<>();
+        String query = "SELECT * FROM properties WHERE type = ?";
+
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setString(1, type);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String name = rs.getString("name");
+                    String address = rs.getString("address");
+                    double price = rs.getDouble("price");
+
+                    Property property = new Property(name, type, address, price);
+                    properties.add(property);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return properties;
+    }
+}
